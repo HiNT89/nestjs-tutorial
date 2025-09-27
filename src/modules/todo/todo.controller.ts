@@ -4,6 +4,8 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -24,14 +26,14 @@ export class TodoController {
   findAll() {
     return this.service.findAll();
   }
-
+  // NOTE:  ParseIntPipe to convert string to number
   @Delete(':id')
-  remove(@Param('id') id: number) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
   }
 
-  @Put(':id/done')
-  update(@Param('id') id: number) {
+  @Patch(':id/done')
+  update(@Param('id', ParseIntPipe) id: number) {
     return this.service.isDone(id);
   }
 

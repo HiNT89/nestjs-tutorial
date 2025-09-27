@@ -31,10 +31,8 @@ export class TodoService {
   }
 
   search(q: string) {
-    return this.todos.filter((t) => {
-      const t_lower = t.title.toLowerCase();
-      const q_lower = q.toLowerCase();
-      return t_lower.includes(q_lower);
-    });
+    const keyword = (q ?? '').trim().toLowerCase();
+    if (!keyword) return this.todos; // hoặc throw new BadRequestException('search is required');
+    return this.todos.filter((t) => t.title.toLowerCase().includes(keyword));
   }
 }

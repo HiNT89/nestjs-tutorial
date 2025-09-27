@@ -5,11 +5,6 @@ export class CreateTodoDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
-  @ApiProperty()
+  @ApiProperty({ example: 'Học NestJS', maxLength: 200 })
   title: string;
-
-  @IsNotEmpty()
-  @IsBoolean()
-  @ApiProperty()
-  isDone: boolean;
 }
