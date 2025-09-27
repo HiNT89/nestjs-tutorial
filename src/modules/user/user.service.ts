@@ -45,4 +45,16 @@ export class UserService {
     user.isActive = false; // chỉ ẩn
     return this.repo.save(user);
   }
+
+  async findByEmail(email: string) {
+    return this.repo.findOne({ where: { email, isActive: true } });
+  }
+
+  findWithPassword(email: string) {
+    return this.repo
+      .createQueryBuilder('u')
+      .addSelect('u.passwordHash')
+      .where('u.email = :email', { email })
+      .getOne();
+  }
 }

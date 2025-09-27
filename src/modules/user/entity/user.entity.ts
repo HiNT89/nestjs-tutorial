@@ -19,7 +19,7 @@ export class User {
   @Column({ length: 100 })
   fullName: string;
 
-  @Column({ select: false }) // không trả về mặc định
+  @Column() // không trả về mặc định
   passwordHash: string;
 
   @CreateDateColumn()

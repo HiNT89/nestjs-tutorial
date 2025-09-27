@@ -1,0 +1,95 @@
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { UserService } from '../user/user.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService, ConfigType } from '@nestjs/config';
+import { RegisterDto } from './dto/register.dto';
+import * as bcrypt from 'bcrypt';
+import { LoginDto } from './dto/login.dto';
+import jwtConfig from '@/common/config/jwt.config';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly users: UserService,
+    private readonly jwt: JwtService,
+    private readonly cfg: ConfigService,
+    @Inject(jwtConfig.KEY)
+    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+  ) {}
+
+  async register(dto: RegisterDto) {
+    const exists = await this.users.findByEmail(dto.email);
+    if (exists) throw new ConflictException('Email already used');
+    const passwordHash = await bcrypt.hash(dto.password, 10);
+    const user = await this.users.create({ ...dto, passwordHash });
+    return this.issueTokens(user.id, user.email);
+  }
+
+  async validateUser(email: string, pass: string) {
+    const user = await this.users.findWithPassword(email); // repo.addSelect('passwordHash')
+    if (!user) return null;
+    const ok = await bcrypt.compare(pass, user.passwordHash);
+    if (!ok) return null;
+    return { id: user.id, email: user.email };
+  }
+
+  async login(dto: LoginDto) {
+    try {
+      const user = await this.users.findByEmail(dto.email);
+      if (!user) throw new UnauthorizedException('Invalid credentials');
+      const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
+      if (!isMatch) throw new UnauthorizedException('Invalid credentials');
+
+      return this.issueTokens(user.id, user.email);
+    } catch (error) {
+      console.log('Login error:', error);
+    }
+  }
+
+  async refreshToken(refresh: string) {
+    const payload = await this.jwt.verifyAsync(refresh, {
+      secret: this.cfg.get('JWT_REFRESH_SECRET'),
+    });
+    return this.issueTokens(payload.sub, payload.email);
+  }
+
+  private issueTokens(sub: number, email: string) {
+    const accessToken = this.jwt.sign(
+      { email },
+      {
+        secret: this.cfg.get('JWT_SECRET'),
+        expiresIn: this.cfg.get('JWT_EXPIRES_IN') ?? '15m',
+        subject: String(sub),
+      },
+    );
+    const refreshToken = this.jwt.sign(
+      { email },
+      {
+        secret: this.cfg.get('JWT_REFRESH_SECRET'),
+        expiresIn: this.cfg.get('JWT_REFRESH_EXPIRES_IN') ?? '7d',
+        subject: String(sub),
+      },
+    );
+    return { accessToken, refreshToken };
+  }
+
+  async getMe(token: string): Promise<any> {
+    try {
+      const payload = await this.jwt.verifyAsync(token, this.jwtConfiguration);
+
+      if (payload === null) {
+        return null;
+      }
+      const id = payload['sub'];
+
+      return this.users.findOneOrFail(id);
+    } catch (err) {
+      console.log('🚀 ~ AuthService ~ getMe ~ err:', err);
+    }
+  }
+}

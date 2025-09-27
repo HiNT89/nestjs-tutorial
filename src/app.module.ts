@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TodoModule } from './modules/todo/todo.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -24,8 +24,8 @@ import { UserModule } from './modules/user/user.module';
         autoLoadEntities: true, // tự load Entities từ các module
       }),
     }),
-    TodoModule,
     UserModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
