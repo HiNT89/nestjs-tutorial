@@ -23,17 +23,14 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    const exists = await this.users.findByEmail(dto.email);
-    if (exists) throw new ConflictException('Email already used');
-    const passwordHash = await bcrypt.hash(dto.password, 10);
-    const user = await this.users.create({ ...dto, passwordHash });
+    const user = await this.users.create(dto);
     return this.issueTokens(user.id, user.email);
   }
 
   async validateUser(email: string, pass: string) {
     const user = await this.users.findWithPassword(email); // repo.addSelect('passwordHash')
     if (!user) return null;
-    const ok = await bcrypt.compare(pass, user.passwordHash);
+    const ok = await bcrypt.compare(pass, user.password);
     if (!ok) return null;
     return { id: user.id, email: user.email };
   }
@@ -42,7 +39,7 @@ export class AuthService {
     try {
       const user = await this.users.findByEmail(dto.email);
       if (!user) throw new UnauthorizedException('Invalid credentials');
-      const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
+      const isMatch = await bcrypt.compare(dto.password, user.password);
       if (!isMatch) throw new UnauthorizedException('Invalid credentials');
 
       return this.issueTokens(user.id, user.email);
@@ -65,6 +62,7 @@ export class AuthService {
         secret: this.cfg.get('JWT_SECRET'),
         expiresIn: this.cfg.get('JWT_EXPIRES_IN') ?? '15m',
         subject: String(sub),
+        // Remove audience claim
       },
     );
     const refreshToken = this.jwt.sign(
@@ -73,6 +71,7 @@ export class AuthService {
         secret: this.cfg.get('JWT_REFRESH_SECRET'),
         expiresIn: this.cfg.get('JWT_REFRESH_EXPIRES_IN') ?? '7d',
         subject: String(sub),
+        // Remove audience claim
       },
     );
     return { accessToken, refreshToken };
@@ -80,16 +79,22 @@ export class AuthService {
 
   async getMe(token: string): Promise<any> {
     try {
-      const payload = await this.jwt.verifyAsync(token, this.jwtConfiguration);
+      const payload = await this.jwt.verifyAsync(token, {
+        secret: this.jwtConfiguration.secret,
+        // Remove or adjust audience verification if needed
+        // audience: 'localhost:3000', // Only include if you want to verify audience
+      });
 
       if (payload === null) {
         return null;
       }
       const id = payload['sub'];
+      console.log('🚀 ~ AuthService ~ getMe ~ id:', id);
 
       return this.users.findOneOrFail(id);
     } catch (err) {
       console.log('🚀 ~ AuthService ~ getMe ~ err:', err);
+      return null;
     }
   }
 }

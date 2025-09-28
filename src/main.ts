@@ -3,11 +3,15 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import initSwagger from './swagger/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { HttpExceptionFilter, ResponseInterceptor } from './common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+  app.useGlobalInterceptors(new ResponseInterceptor());
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   // Get ConfigService instance
   const configService = app.get(ConfigService);

@@ -1,14 +1,8 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-  Index,
-} from 'typeorm';
+import { BaseSoftEntity } from '@/common';
+import { Column, Entity, PrimaryGeneratedColumn, Index } from 'typeorm';
 
 @Entity({ name: 'users' })
-export class User {
+export class User extends BaseSoftEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -20,14 +14,5 @@ export class User {
   fullName: string;
 
   @Column() // không trả về mặc định
-  passwordHash: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @Column({ default: true })
-  isActive: boolean;
+  password: string;
 }

@@ -26,12 +26,17 @@ export class UserController {
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'order', required: false, type: String })
   list(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('search', new DefaultValuePipe('')) search: string,
   ) {
-    return this.service.findAll(page, limit, search);
+    return this.service.findAll({
+      page,
+      limit,
+      search,
+    });
   }
 
   @Get(':id')
