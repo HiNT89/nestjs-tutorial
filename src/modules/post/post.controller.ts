@@ -8,26 +8,19 @@ import {
   ParseIntPipe,
   Delete,
   DefaultValuePipe,
-  UseGuards,
 } from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/user.dto';
-import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '@/common/guards/roles.guard';
-import { UserRole } from './entity/user.entity';
-import { Roles } from '@/common/decorators/roles.decorator';
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-@Controller('users')
-export class UserController {
-  constructor(private readonly service: UserService) {}
+import { PostService } from './post.service';
+import { CreatePostDto } from './dto/post.dto';
+import { ApiQuery } from '@nestjs/swagger';
+
+@Controller('post')
+export class PostController {
+  constructor(private readonly service: PostService) {}
 
   @Post()
-  create(@Body() dto: CreateUserDto) {
+  create(@Body() dto: CreatePostDto) {
     return this.service.create(dto);
   }
-  @Roles(UserRole.ADMIN)
-  @ApiBearerAuth()
   @Get()
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -52,6 +45,6 @@ export class UserController {
 
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id);
+    return this.service.remove(+id);
   }
 }

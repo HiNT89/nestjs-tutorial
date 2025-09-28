@@ -9,9 +9,6 @@ export enum UserRole {
 
 @Entity({ name: 'users' })
 export class User extends BaseSoftEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
   @Index({ unique: true })
   @Column({ length: 120 })
   email: string;

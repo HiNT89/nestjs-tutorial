@@ -18,6 +18,7 @@ import { AuthController } from './auth.controller';
     ConfigModule,
     ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync({
+      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (cfg: ConfigService) => ({
         secret: cfg.get<string>('JWT_SECRET'),

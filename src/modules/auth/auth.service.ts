@@ -11,20 +11,15 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import jwtConfig from '@/common/config/jwt.config';
-import { User, UserRole } from '../user/entity/user.entity';
-import { RefreshToken } from './entities/refresh-token.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { UserRole } from '../user/entity/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(jwtConfig.KEY)
-    @InjectRepository(RefreshToken)
     private readonly users: UserService,
     private readonly jwt: JwtService,
     private readonly cfg: ConfigService,
-    private readonly rtRepo: Repository<RefreshToken>,
+    @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
   ) {}
 
@@ -107,6 +102,4 @@ export class AuthService {
       return null;
     }
   }
-
-  
 }
