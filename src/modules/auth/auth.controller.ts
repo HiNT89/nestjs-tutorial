@@ -22,7 +22,6 @@ export class AuthController {
     return this.auth.register(dto);
   }
 
-  // @UseGuards(AuthGuard('local'))
   @ApiBearerAuth()
   @Get('me')
   getMe(@Req() req) {

@@ -1,3 +1,4 @@
+import { UserRole } from '@/modules/user/entity/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
@@ -20,4 +21,10 @@ export class RegisterDto {
   @MaxLength(100)
   @ApiProperty({ example: '123456', maxLength: 100 })
   password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  @ApiProperty({ example: UserRole.USER, maxLength: 100 })
+  role?: UserRole;
 }

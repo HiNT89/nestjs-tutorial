@@ -1,6 +1,12 @@
 import { BaseSoftEntity } from '@/common';
 import { Column, Entity, PrimaryGeneratedColumn, Index } from 'typeorm';
 
+export enum UserRole {
+  ADMIN = 'admin',
+  MANAGER = 'manager',
+  USER = 'user',
+}
+
 @Entity({ name: 'users' })
 export class User extends BaseSoftEntity {
   @PrimaryGeneratedColumn()
@@ -15,4 +21,7 @@ export class User extends BaseSoftEntity {
 
   @Column() // không trả về mặc định
   password: string;
+
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
+  role: UserRole;
 }

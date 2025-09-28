@@ -11,20 +11,26 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import jwtConfig from '@/common/config/jwt.config';
+import { User, UserRole } from '../user/entity/user.entity';
+import { RefreshToken } from './entities/refresh-token.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(jwtConfig.KEY)
+    @InjectRepository(RefreshToken)
     private readonly users: UserService,
     private readonly jwt: JwtService,
     private readonly cfg: ConfigService,
-    @Inject(jwtConfig.KEY)
+    private readonly rtRepo: Repository<RefreshToken>,
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
   ) {}
 
   async register(dto: RegisterDto) {
     const user = await this.users.create(dto);
-    return this.issueTokens(user.id, user.email);
+    return this.issueTokens(user.id, user.email, user.role || UserRole.USER);
   }
 
   async validateUser(email: string, pass: string) {
@@ -42,7 +48,7 @@ export class AuthService {
       const isMatch = await bcrypt.compare(dto.password, user.password);
       if (!isMatch) throw new UnauthorizedException('Invalid credentials');
 
-      return this.issueTokens(user.id, user.email);
+      return this.issueTokens(user.id, user.email, user.role);
     } catch (error) {
       console.log('Login error:', error);
     }
@@ -52,12 +58,16 @@ export class AuthService {
     const payload = await this.jwt.verifyAsync(refresh, {
       secret: this.cfg.get('JWT_REFRESH_SECRET'),
     });
-    return this.issueTokens(payload.sub, payload.email);
+    return this.issueTokens(payload.sub, payload.email, payload.role);
   }
 
-  private issueTokens(sub: number, email: string) {
+  private issueTokens(
+    sub: number,
+    email: string,
+    role: UserRole = UserRole.USER,
+  ) {
     const accessToken = this.jwt.sign(
-      { email },
+      { email, role },
       {
         secret: this.cfg.get('JWT_SECRET'),
         expiresIn: this.cfg.get('JWT_EXPIRES_IN') ?? '15m',
@@ -97,4 +107,6 @@ export class AuthService {
       return null;
     }
   }
+
+  
 }

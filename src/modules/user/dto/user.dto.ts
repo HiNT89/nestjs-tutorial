@@ -2,6 +2,7 @@ import { BaseResponseDto } from '@/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { UserRole } from '../entity/user.entity';
 
 export class CreateUserDto {
   @IsEmail()
@@ -21,6 +22,12 @@ export class CreateUserDto {
   @MaxLength(100)
   @ApiProperty({ example: '123456', maxLength: 100 })
   password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  @ApiProperty({ example: 'admin', maxLength: 100 })
+  role?: UserRole;
 }
 
 export class UserResponseDto extends BaseResponseDto {
@@ -28,4 +35,7 @@ export class UserResponseDto extends BaseResponseDto {
   fullName: string;
   @Expose()
   email: string;
+
+  @Expose()
+  role: UserRole;
 }

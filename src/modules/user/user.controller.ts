@@ -8,11 +8,17 @@ import {
   ParseIntPipe,
   Delete,
   DefaultValuePipe,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/user.dto';
-import { ApiQuery } from '@nestjs/swagger';
-
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from '@/common/guards/roles.guard';
+import { UserRole } from './entity/user.entity';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { Roles } from '@/common/decorators/roles.decorator';
+@UseGuards(AuthGuard('jwt'), RolesGuard)
 @Controller('users')
 export class UserController {
   constructor(private readonly service: UserService) {}
@@ -21,7 +27,8 @@ export class UserController {
   create(@Body() dto: CreateUserDto) {
     return this.service.create(dto);
   }
-
+  @Roles(UserRole.ADMIN)
+  @ApiBearerAuth()
   @Get()
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
