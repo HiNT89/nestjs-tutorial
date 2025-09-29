@@ -3,9 +3,10 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { User } from './entity/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Post } from '@/modules/post/entity/post.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User])],
+  imports: [TypeOrmModule.forFeature([User, Post])],
   controllers: [UserController],
   providers: [UserService],
   exports: [TypeOrmModule, UserService], // nếu module khác cần repository User

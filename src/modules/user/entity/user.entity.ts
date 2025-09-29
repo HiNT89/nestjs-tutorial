@@ -1,5 +1,12 @@
 import { BaseSoftEntity } from '@/common';
-import { Column, Entity, PrimaryGeneratedColumn, Index } from 'typeorm';
+import { Post } from '@/modules/post/entity/post.entity';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  Index,
+  OneToMany,
+} from 'typeorm';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -21,4 +28,7 @@ export class User extends BaseSoftEntity {
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   role: UserRole;
+
+  @OneToMany(() => Post, (post) => post.author)
+  posts: Post[];
 }

@@ -1,5 +1,6 @@
 import { BaseSoftEntity } from '@/common';
-import { Column, Entity, Index, Unique } from 'typeorm';
+import { Post } from '@/modules/post/entity/post.entity';
+import { Column, Entity, Index, ManyToMany, Unique } from 'typeorm';
 
 @Entity('tags')
 export class Tag extends BaseSoftEntity {
@@ -10,4 +11,7 @@ export class Tag extends BaseSoftEntity {
 
   @Column({ length: 200, nullable: true })
   description: string;
+
+  @ManyToMany(() => Post, (post) => post.tags)
+  posts: Post[];
 }

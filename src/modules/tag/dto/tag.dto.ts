@@ -1,7 +1,7 @@
 import { BaseResponseDto } from '@/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateTagDto {
   @IsString()
@@ -9,8 +9,9 @@ export class CreateTagDto {
   name: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty({ example: 'description', maxLength: 200 })
-  description: string;
+  description?: string;
 }
 
 export class TagResponseDto extends BaseResponseDto {
