@@ -8,7 +8,11 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsInt,
+  IsPositive,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { Post } from '../entity/post.entity';
 
 export class CreatePostDto {
@@ -21,6 +25,8 @@ export class CreatePostDto {
   description: string;
 
   @IsNumber()
+  @IsPositive() // kiểm tra số dương
+  @IsInt() // kiểm tra số nguyên
   @ApiProperty({ example: 1 })
   authorId: number;
 
@@ -28,8 +34,11 @@ export class CreatePostDto {
   @ArrayUnique()
   @ArrayMaxSize(30)
   @IsOptional()
-  @ApiProperty({ example: [1, 2, 3] })
-  tags_id: number[];
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Type(() => Number)
+  @ApiProperty({ example: [1, 2, 3], required: false })
+  tags_id?: number[];
 }
 
 export class PostResponseDto extends BaseResponseDto {

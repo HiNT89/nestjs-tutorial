@@ -22,15 +22,13 @@ export function toLiteDto<T>(
   entity: T,
   fields: (keyof T)[] = ['id' as keyof T],
 ) {
-  const obj: any = { id: (entity as any).id };
+  const obj: any = {};
   fields.forEach((f) => {
     if ((entity as any)[f] !== undefined) {
       obj[f] = (entity as any)[f];
     }
   });
-  return plainToInstance(BaseResponseDto, obj, {
-    excludeExtraneousValues: true,
-  });
+  return obj; // Return plain object thay vì transform qua BaseResponseDto
 }
 
 // @Expose()

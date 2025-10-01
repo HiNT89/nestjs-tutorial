@@ -19,6 +19,17 @@ export class PostController {
 
   @Post()
   create(@Body() dto: CreatePostDto) {
+    console.log(
+      '🚀 ~ PostController ~ create ~ received dto:',
+      JSON.stringify(dto, null, 2),
+    );
+    console.log('🚀 ~ PostController ~ create ~ dto type:', typeof dto);
+    console.log(
+      '🚀 ~ PostController ~ create ~ tags_id type:',
+      typeof dto.tags_id,
+      'value:',
+      dto.tags_id,
+    );
     return this.service.create(dto);
   }
   @Get()
